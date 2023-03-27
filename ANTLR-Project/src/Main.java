@@ -42,12 +42,11 @@ public class Main {
         MyJavaVisitor myJavaVisitor = new MyJavaVisitor(rewriter);
         myJavaVisitor.visit(tree);
 
-        System.out.println(rewriter.getText() + "\n// Hence, there are " + myJavaVisitor.blockCount + " code blocks.");
+        System.out.println(rewriter.getText() + "\n/* Hence, there are " + myJavaVisitor.blockCount + " code blocks */\n");
 
-        String outputFileName = "Output Code.java";
-
+        String outputFileName = "Intermediate-Code.java";
         try (FileWriter fileWriter = new FileWriter(outputFileName)) {
-            fileWriter.write(rewriter.getText() + "\n// Hence, there are " + myJavaVisitor.blockCount + " code blocks.");
+            fileWriter.write(rewriter.getText() + "\n/* Hence, there are " + myJavaVisitor.blockCount + " code blocks */\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
