@@ -9,8 +9,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
+import java.io.ObjectInputStream;
+import java.util.HashMap;
+
+
 public class Main {
     public static void main(String[] args) throws IOException {
+
+        HashMap<Integer, Integer> checkedBlocks = null;
 
         System.out.print("Enter the input file path: ");
         Scanner sc = new Scanner(System.in);
@@ -31,7 +37,7 @@ public class Main {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
 
         // Create token stream rewriter to inject code snippets
-        TokenStreamRewriter rewriter = new TokenStreamRewriter(tokens);
+        TokenStreamRewriter interCodeRewriter = new TokenStreamRewriter(tokens);
 
         // Create a parser that feeds off the tokens buffer
         JavaParser parser = new JavaParser(tokens);
@@ -39,16 +45,42 @@ public class Main {
         // Begin parsing at init rule
         ParseTree tree = parser.compilationUnit();
 
-        MyJavaVisitor myJavaVisitor = new MyJavaVisitor(rewriter);
-        myJavaVisitor.visit(tree);
+        IntermediateCodeVisitor intermediateCodeVisitor = new IntermediateCodeVisitor(interCodeRewriter);
+        intermediateCodeVisitor.visit(tree);
 
-        System.out.println(rewriter.getText() + "\n/* Hence, there are " + myJavaVisitor.blockCount + " code blocks */\n");
+        System.out.println(interCodeRewriter.getText() + "\n/* Hence, there are " + --intermediateCodeVisitor.blockCount + " code blocks */\n");
 
         String outputFileName = "Intermediate-Code.java";
         try (FileWriter fileWriter = new FileWriter(outputFileName)) {
-            fileWriter.write(rewriter.getText() + "\n/* Hence, there are " + myJavaVisitor.blockCount + " code blocks */\n");
+            fileWriter.write(interCodeRewriter.getText() + "\n/* Hence, there are " + --intermediateCodeVisitor.blockCount + " code blocks */\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        System.out.print("Enter the Hash-Map path: ");
+        String hashMapPath = sc.nextLine();
+
+        try {
+            FileInputStream fileIn = new FileInputStream(hashMapPath);
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            checkedBlocks = (HashMap<Integer, Integer>) in.readObject();
+            in.close();
+            fileIn.close();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        TokenStreamRewriter htmlWriterRewriter = new TokenStreamRewriter(tokens);
+
+        HTMLWriterVisitor htmlWriterVisitor = new HTMLWriterVisitor(htmlWriterRewriter, checkedBlocks);
+        htmlWriterVisitor.visit(tree);
+
+        String htmlFileName = "index.html";
+        try (FileWriter htmlWriter = new FileWriter(htmlFileName)) {
+            htmlWriter.write(htmlWriterRewriter.getText());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
