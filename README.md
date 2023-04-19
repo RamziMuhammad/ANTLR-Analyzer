@@ -2,6 +2,10 @@
 
 It is a Java code analyzer that produces information on the code coverage of statements and branches.
 
+Our features are developed in three deliveries or versions as required in the [**project description**](./Project-Description.pdf), which are represented in the following three folders:	[**1st** Delivery](./ANTLR-Project-v1.0)	-	[**2nd** Delivery](./ANTLR-Project-v2.0)	-	[**3rd** Delivery](./ANTLR-Project-v3.0)
+
+Moreover, [**tree** code snippets ](./Input-Code-Snippets) were pushed to be used as input codes to check the functionality.
+
 ------
 
 
@@ -20,9 +24,23 @@ It is a Java code analyzer that produces information on the code coverage of sta
 
   - The file should seem as follows:
 
-    Block number 1 is visited only once
+    ​	Block number 1 is visited only once
 
-    Block number 2 is visited two times
+    ​	Block number 2 is visited two times
+  
+- Use the output from delivery 2 to generate an HTML with highlighted red/green lines
+
+  - Orange lines are highlighted  for branch coverage implementation as following:
+
+    > ​	If a Boolean expression comprises more than one condition, such as a || b, and the first condition always evaluates to true, then the second condition b never executed for any branches (if/else/for/while). In this scenario, the HTML file output must include this line highlighted in orange.
+
+  - Green lines are highlighted for visited lines
+
+    > ​	When both of the conditions in the previous example are evaluated, the output background color in the HTML file is green.
+
+  - Red lines are highlighted for not visited lines
+
+    > ​	The Boolean statement in the output HTML file is red if neither of the conditions an or b evaluate to true.
 
 
 ------
@@ -39,15 +57,11 @@ It is a Java code analyzer that produces information on the code coverage of sta
 
 ------
 
-
-
 ### Parse Tree
 
 <p align="center">
   <img src="https://github.com/RamziMuhammad/ANTLR-Project/blob/main/Parse-Trees/Parse-Tree(3).png" style="width:800px;"/>
 </p>
-
-
 
 ------
 
@@ -118,26 +132,79 @@ String writingOutputFile = "String outputFileName = \"Visited-Blocks.txt\";\n" +
 
 ------
 
+> #### [Intermediate Code](./ANTLR-Project-v2.0/Intermediate-Code.java)
 
+```java
+import java.util.ArrayList;
+import java.io.FileWriter;
+import java.io.IOException;
 
-> #### [Intermediate Code](./ANTLR-Project/Intermediate-Code.java)
+public class Main {
+    
+    static ArrayList<Integer> executedBlocks = new ArrayList<Integer>();
 
-<p align="center">
-  <img src="https://github.com/RamziMuhammad/ANTLR-Project/blob/main/Assets/Intermediate-Code.png" style="width:800px;"/>
-</p>
+    public static void main(String[] args) { /* Block number 0 */
+                executedBlocks.add(0);
+            int x = 0;
+            int y = 1;
+            for (int i = 0; i < 5; i++){ /* Block number 1 */
+                executedBlocks.add(1);
+                }
+            if (x == 0 || y == 4) { /* Block number 2 */
+                executedBlocks.add(2);
+                x++;
+                y = 10;
+            }
+            while (x == -1) { /* Block number 3 */
+                executedBlocks.add(3);
+                x ++;
+                break;
+            }
 
+        String outputFileName = "Visited-Blocks.txt";
+        try (FileWriter fileWriter = new FileWriter(outputFileName)) {
+            int previous = executedBlocks.get(0);
+            int count = 1;
+            for (int i = 1; i < executedBlocks.size(); i++) {
+                if (executedBlocks.get(i) == previous) {
+                    count++;
+                } else {
+                    if(count == 1){
+                        fileWriter.write("Block number " + previous + " is visited only once\n");
+                    } else {
+                        fileWriter.write("Block number " + previous + " is visited " + count + " times\n");
+                    }
+                    count = 1;
+                }
+                previous = executedBlocks.get(i);
+            }
+            if(count == 1){
+                fileWriter.write("Block number " + previous + " is visited only once\n");
+            } else {
+                fileWriter.write("Block number " + previous + " is visited " + count + " times\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+	}
+}
+/* Hence, there are 4 code blocks */
+```
 
+------
 
-
-
-> #### [Analysis Output](./ANTLR-Project/Visited-Blocks.txt)
+> #### [Analysis Output of 2nd Delivery](./ANTLR-Project-v2.0/Visited-Blocks.txt)
 
 <p align="center">
   <img src="https://github.com/RamziMuhammad/ANTLR-Project/blob/main/Assets/Visited-Blocks.png" style="width:800px;"/>
 </p>
 
 
+> #### [Final Output of 3rd Delivery](./ANTLR-Project-v3.0/Output-Files/index.html)
 
+<p align="center">
+  <img src="https://github.com/RamziMuhammad/ANTLR-Project/blob/main/Assets/HTML-Output.png" style="width:800px;"/>
+</p>
 
 
 ------

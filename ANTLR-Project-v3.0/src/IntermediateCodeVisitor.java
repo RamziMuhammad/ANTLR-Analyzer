@@ -25,50 +25,39 @@ public class IntermediateCodeVisitor extends JavaParserBaseVisitor {
             static ArrayList<Integer> executedBlocks = new ArrayList<Integer>();
             static HashMap<Integer, Integer> checkedBlocks = new HashMap<>();
             static ArrayList<Integer> order = new ArrayList<>();
-            
+                        
             """;
 
-    String blockNumInsertion = " /* Block number " + blockCount + " */\n" +
-            "    executedBlocks.add(" + blockCount + ");\n";
-
     String writingOutputFile = """
-                
-                int lastKey = order.remove(order.size() - 1);
-                checkedBlocks.remove(lastKey);
-                for (int i = 0; i < lastKey; i++) {
-                    if (checkedBlocks.get(i) == null) {
-                        checkedBlocks.put(i, 0);
-                    }
-                }
                     
-                String outputFileName = "Visited-Blocks.txt";
-                try (FileWriter fileWriter = new FileWriter(outputFileName)) {
-                    int previous = executedBlocks.get(0);
-                    int count = 1;
-                    for (int i = 1; i < executedBlocks.size(); i++) {
-                        if (executedBlocks.get(i) == previous) {
-                            count++;
-                        } else {
-                            if(count == 1){
-                                fileWriter.write("Block number " + previous + " is visited only once\\n");
+                    String outputFileName = "./Output-Files/Visited-Blocks.txt";
+                    try (FileWriter fileWriter = new FileWriter(outputFileName)) {
+                        int previous = executedBlocks.get(0);
+                        int count = 1;
+                        for (int i = 1; i < executedBlocks.size(); i++) {
+                            if (executedBlocks.get(i) == previous) {
+                                count++;
                             } else {
-                                fileWriter.write("Block number " + previous + " is visited " + count + " times\\n");
+                                if(count == 1){
+                                    fileWriter.write("Block number " + previous + " is visited only once\\n");
+                                } else {
+                                    fileWriter.write("Block number " + previous + " is visited " + count + " times\\n");
+                                }
+                                count = 1;
                             }
-                            count = 1;
+                            previous = executedBlocks.get(i);
                         }
-                        previous = executedBlocks.get(i);
+                        if(count == 1){
+                            fileWriter.write("Block number " + previous + " is visited only once\\n");
+                        } else {
+                            fileWriter.write("Block number " + previous + " is visited " + count + " times\\n");
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    if(count == 1){
-                        fileWriter.write("Block number " + previous + " is visited only once\\n");
-                    } else {
-                        fileWriter.write("Block number " + previous + " is visited " + count + " times\\n");
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                
-                try {
-                        FileOutputStream fileOut = new FileOutputStream("Blocks-Hash-Map.ser");
+                    
+                    try {
+                        FileOutputStream fileOut = new FileOutputStream("./Output-Files/Blocks-HashMap.ser");
                         ObjectOutputStream out = new ObjectOutputStream(fileOut);
                         out.writeObject(checkedBlocks);
                         out.close();
@@ -77,6 +66,7 @@ public class IntermediateCodeVisitor extends JavaParserBaseVisitor {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    
             """;
 
     @Override
@@ -93,17 +83,18 @@ public class IntermediateCodeVisitor extends JavaParserBaseVisitor {
     }
     @Override
     public Object visitBlock(JavaParser.BlockContext ctx) {
-        if(blockCount == 0) {
-            interCodeRewriter.insertAfter(ctx.getStart(), "\ncheckedBlocks.put(0, 0);\n" +
-                    "order.add(0);\n");
+        interCodeRewriter.insertAfter(ctx.getStart()," /* Block number " + blockCount + " */\n");
+
+        if (blockCount == 0) {
+            interCodeRewriter.insertAfter(ctx.getStart(), "\ncheckedBlocks.put(0, 0);\n");
+        } else {
+            interCodeRewriter.insertBefore(ctx.getParent().getParent().getStart(), "\ncheckedBlocks.put(" + blockCount + ", 0);\n");
         }
-        interCodeRewriter.insertAfter(ctx.getStart(), " /* Block number " + blockCount + " */\n" +
-                "    if(checkedBlocks.get(" + blockCount + ") == null || checkedBlocks.get(" + blockCount + ") == 0){\n" +
-                "       checkedBlocks.put(" + blockCount + ", 2);\n" +
-                "    }\n" +
-                "    executedBlocks.add(" + blockCount + ");\n" +
-                "    checkedBlocks.put(" + ++blockCount + ", 0);\n" +
-                "    order.add(" + blockCount + ");\n");
+
+        interCodeRewriter.insertAfter(ctx.getStart(), "\nexecutedBlocks.add(" + blockCount + ");\n"  +
+                        "if(checkedBlocks.get(" + blockCount + ") == 0){\n" +
+                        "   checkedBlocks.put(" + blockCount++ + ", 2);\n" +
+                        "}\n");
 
         return super.visitBlock(ctx);
     }
@@ -117,13 +108,15 @@ public class IntermediateCodeVisitor extends JavaParserBaseVisitor {
             }else if (middleOperator.equals("==")) {
 
                 checkStatements = checkStatements + "\nif (" + ctx.getText() + ") {\n" +
-                        "if (checkedBlocks.get(" + blockCount + ") == 0 || " + " checkedBlocks.get(" + blockCount + ") == 1) {\n" +
-                        "checkedBlocks.put(" + blockCount + ", 2);\n" +
-                        "}\n" +
-                        "} else { \n" +
-                        "if (checkedBlocks.get(" + blockCount + ") == 2) {\n" +
-                        "checkedBlocks.put(" + blockCount + ", 1);\n" +
-                        "}\n" +
+                        "    if (checkedBlocks.get(" + blockCount + ") == 0) {\n" +
+                        "        checkedBlocks.put(" + blockCount + ", 2);\n" +
+                        "    } else if (checkedBlocks.get(" + blockCount + ") == 2) {\n" +
+                        "        checkedBlocks.put(" + blockCount + ", 1);\n" +
+                        "    }\n" +
+                        "} else {\n" +
+                        "    if (checkedBlocks.get(" + blockCount + ") == 2) {\n" +
+                        "        checkedBlocks.put(" + blockCount + ", 1);\n" +
+                        "    }\n" +
                         "}\n";
             }
         }
