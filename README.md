@@ -49,8 +49,6 @@ Moreover, [**tree** code snippets ](./Input-Code-Snippets) were pushed to be use
 
 ## Project Requirements
 
-<a href="https://github.com/RamziMuhammad"></a>
-
 - <a href="https://www.jetbrains.com/idea/download/#section=windows">**IntelliJ IDEA**</a>
 - <a href="https://www.antlr.org/download.html">**ANTLR**</a>
 - <a href="https://github.com/antlr/grammars-v4/tree/master/java/java">**Java ANTLR Grammar**</a>
@@ -59,9 +57,10 @@ Moreover, [**tree** code snippets ](./Input-Code-Snippets) were pushed to be use
 
 ### Parse Tree
 
-<p align="center">
+<div align="center">
   <img src="https://github.com/RamziMuhammad/ANTLR-Project/blob/main/Parse-Trees/Parse-Tree(3).png" style="width:800px;"/>
-</p>
+</div>
+
 
 ------
 
@@ -195,16 +194,18 @@ public class Main {
 
 > #### [Analysis Output of 2nd Delivery](./ANTLR-Project-v2.0/Visited-Blocks.txt)
 
-<p align="center">
+<div align="center">
   <img src="https://github.com/RamziMuhammad/ANTLR-Project/blob/main/Assets/Visited-Blocks.png" style="width:800px;"/>
-</p>
+</div>
+
 
 
 > #### [Final Output of 3rd Delivery](./ANTLR-Project-v3.0/Output-Files/index.html)
 
-<p align="center">
+<div align="center">
   <img src="https://github.com/RamziMuhammad/ANTLR-Project/blob/main/Assets/HTML-Output.png" style="width:800px;"/>
-</p>
+</div>
+
 
 
 ------
